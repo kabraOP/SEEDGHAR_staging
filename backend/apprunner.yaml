@@ -1,0 +1,29 @@
+version: 1.0
+runtime: nodejs22
+build:
+  commands:
+    build:
+      - npm install
+run:
+  runtime-version: 22
+  command: npm start
+  network:
+    port: 8080
+    env: PORT
+  env:
+    - name: NODE_ENV
+      value: production
+    - name: AWS_REGION
+      value: ap-south-1
+    - name: ORDERS_TABLE
+      value: seedghar-orders
+    - name: CASHFREE_ENV
+      value: sandbox
+    - name: CASHFREE_API_VERSION
+      value: 2025-01-01
+    - name: ALLOWED_ORIGINS
+      value: https://seedghar.com,https://www.seedghar.com
+    - name: STOREFRONT_URL
+      value: https://seedghar.com
+    - name: CASHFREE_RETURN_URL
+      value: https://api.seedghar.com/payment-return?order_id={order_id}

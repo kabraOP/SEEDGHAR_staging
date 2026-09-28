@@ -1,0 +1,17 @@
+{
+  "name": "seedghar-backend",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "package:lambda": "npm install --omit=dev && zip -r seedghar-lambda.zip lambda.js server.js catalog.js node_modules package.json"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.800.0",
+    "@aws-sdk/lib-dynamodb": "^3.800.0",
+    "@aws-sdk/client-secrets-manager": "^3.800.0"
+  }
+}

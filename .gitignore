@@ -1,0 +1,5 @@
+.DS_Store
+backend/orders.json
+backend/.env
+backend/node_modules/
+backend/seedghar-lambda.zip
