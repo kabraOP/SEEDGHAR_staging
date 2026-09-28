@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Quicksand:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -233,6 +234,175 @@
         @media (min-width: 640px) { .sg-ctas { font-size: 14px; } }
         .sg-ctab { background:var(--sg-orange); color:#fff; border:none; padding:12px 32px; border-radius:50px; font-size:14px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; letter-spacing:.03em; transition: transform 0.2s, background 0.2s; }
         .sg-ctab:hover { background: #d14912; transform: scale(1.05); }
+
+        /* Cart drawer styles */
+        .cart-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.35); opacity: 0; visibility: hidden; transition: opacity 0.25s ease; z-index: 40; }
+        .cart-overlay.open { opacity: 1; visibility: visible; }
+        #cart-drawer { position: fixed; top: 0; right: 0; width: 0; height: 100%; background: #fff; box-shadow: -12px 0 40px rgba(15, 23, 42, 0.18); overflow-x: hidden; transition: width 0.3s ease; z-index: 50; }
+        #cart-drawer.open { width: min(420px, 100%); }
+        .cart-header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1.25rem 1.5rem; border-bottom: 1px solid #e5e7eb; }
+        .cart-title { font-size: 1.1rem; font-weight: 700; color: #111827; }
+        .cart-count-label { color: #4caf50; font-weight: 600; font-size: 0.95rem; }
+        .cart-items { max-height: calc(100vh - 280px); overflow-y: auto; padding: 1rem 1.5rem; }
+        .cart-item { display: flex; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #f3f4f6; }
+        .cart-item-title { font-size: 0.96rem; font-weight: 700; color: #111827; margin-bottom: 0.25rem; }
+        .cart-item-meta { font-size: 0.84rem; color: #6b7280; line-height: 1.4; }
+        .cart-item-controls { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+        .cart-control-btn { min-width: 36px; border: 1px solid #d1d5db; background: #f8fafc; color: #111827; border-radius: 9999px; padding: 0.45rem 0.7rem; cursor: pointer; font-weight: 600; }
+        .cart-control-btn:hover { background: #eef2ff; }
+        .cart-empty { padding: 1.5rem 1.5rem; color: #6b7280; }
+        .cart-footer { padding: 1rem 1.5rem 1.5rem 1.5rem; border-top: 1px solid #e5e7eb; }
+        .cart-summary { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; font-weight: 700; color: #111827; }
+        .cart-action-btn { width: 100%; background: #1e6835; color: #fff; border: none; border-radius: 9999px; padding: 0.95rem 1rem; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: transform 0.2s ease, background 0.2s ease; }
+        .cart-action-btn:hover { transform: translateY(-1px); background: #16683c; }
+        .cart-secondary-btn { width: 100%; background: transparent; color: #1e6835; border: 1px solid #1e6835; margin-top: 0.75rem; }
+
+        /* Keep product packaging fully visible and consistent across cards. */
+        #seeds-carousel > .group > div.w-full.h-64,
+        #products-view .grid > .group > div.w-full.h-64 {
+            box-sizing: border-box;
+            padding: 0.75rem;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+            border-radius: 1rem;
+            background: #fcfaf4;
+        }
+        #seeds-carousel > .group > div.w-full.h-64 img,
+        #products-view .grid > .group > div.w-full.h-64 img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transform: none !important;
+        }
+        .product-detail-image-frame {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 420px;
+            min-height: 280px;
+            max-height: 420px;
+            aspect-ratio: 1 / 1;
+            margin-inline: auto;
+            padding: 1.25rem;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+            border-radius: 1.5rem;
+            background: #fcfaf4;
+        }
+        .product-detail-image-frame img {
+            width: 100%;
+            height: 100%;
+            max-height: 360px;
+            object-fit: contain;
+            transition: transform 220ms ease;
+        }
+        .product-detail-image-frame[data-weight="250-gm"] img {
+            transform: scale(0.72);
+        }
+        .product-detail-image-frame[data-weight="450-gm"] img {
+            transform: scale(0.86);
+        }
+        .product-detail-image-frame[data-weight="900-gm"] img {
+            transform: scale(1);
+        }
+
+        @media (max-width: 640px) {
+            #product-detail-modal {
+                align-items: center;
+                padding: 0.5rem;
+            }
+            #product-detail-modal > .bg-white {
+                width: 100%;
+                max-height: calc(100dvh - 1rem);
+                overflow-y: auto;
+                border-radius: 1.25rem;
+            }
+            #product-detail-modal > .bg-white > .grid {
+                gap: 0.5rem;
+                padding: 0.65rem 0.85rem 0.85rem;
+            }
+            #product-detail-modal > .bg-white > .grid > .space-y-4,
+            #product-detail-modal > .bg-white > .grid > .space-y-4 > .space-y-4 {
+                gap: 0.65rem;
+            }
+            #product-detail-modal .product-detail-image-frame {
+                width: min(100%, 320px);
+                margin-inline: auto;
+                align-self: center;
+                min-height: 0;
+                max-height: 165px;
+                aspect-ratio: 2.1 / 1;
+                padding: 0.35rem;
+                border-radius: 0.9rem;
+            }
+            #product-detail-modal .product-detail-image-frame img {
+                max-height: 155px;
+            }
+            #product-detail-modal #modal-product-description,
+            #product-detail-modal #modal-product-features {
+                display: none;
+            }
+            #product-detail-modal #modal-availability-row {
+                display: none;
+            }
+            #product-detail-modal .border-b {
+                padding: 0.55rem 0.85rem;
+            }
+            #product-detail-modal #modal-product-availability,
+            #product-detail-modal #modal-product-availability + * {
+                display: none;
+            }
+            #product-detail-modal .bg-\[\#f8fafc\] {
+                padding: 0.6rem;
+                border-radius: 0.85rem;
+            }
+            #product-detail-modal .bg-\[\#f8fafc\] .mb-4 {
+                margin-bottom: 0.4rem;
+            }
+            #product-detail-modal .bg-\[\#f8fafc\] .text-xs.font-bold {
+                margin-bottom: 0.35rem;
+            }
+            #product-detail-modal #modal-product-price {
+                font-size: 1.5rem;
+                line-height: 1.2;
+            }
+            #product-detail-modal #modal-product-variants {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 0.3rem;
+            }
+            #product-detail-modal #modal-product-variants button {
+                flex-direction: column;
+                justify-content: center;
+                gap: 0.25rem;
+                min-width: 0;
+                padding: 0.35rem 0.15rem;
+                font-size: 0.72rem;
+                text-align: center;
+            }
+            #product-detail-modal #modal-product-variants button > span:last-child {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 0.1rem;
+            }
+            #product-detail-modal .rounded-\[1\.5rem\].border.p-5 {
+                padding: 0.5rem 0.65rem;
+                border-radius: 0.85rem;
+            }
+            #product-detail-modal .rounded-\[1\.5rem\].border.p-5 .mb-4 {
+                margin-bottom: 0.25rem;
+            }
+            #product-detail-modal .rounded-\[1\.5rem\].border.p-5 button.h-12.w-12 {
+                width: 2rem;
+                height: 2rem;
+                font-size: 1rem;
+            }
+            #product-detail-modal #modal-add-to-cart {
+                padding-top: 0.65rem;
+                padding-bottom: 0.65rem;
+            }
+        }
     </style>
 </head>
 <body class="font-sans text-gray-800 antialiased bg-[#fcfaf4]">
@@ -272,6 +442,10 @@
                 <div class="flex items-center space-x-6 text-lg text-gray-800">
                     <button class="hover:text-[#1e6835] transition"><i class="fa-solid fa-magnifying-glass"></i></button>
                     <button class="hover:text-[#1e6835] transition"><i class="fa-regular fa-user"></i></button>
+                    <button onclick="toggleCart()" class="relative hover:text-[#1e6835] transition">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span id="cart-count" class="absolute -top-2 -right-2 bg-[#e86a33] text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
+                    </button>
                     <button onclick="toggleMobileMenu()" class="lg:hidden text-2xl text-gray-800 p-1 focus:outline-none hover:text-[#1e6835]">
                         <i class="fa-solid fa-bars"></i>
                     </button>
@@ -286,6 +460,7 @@
         <a href="#" onclick="showStory(event); toggleMobileMenu();" id="mobile-story" class="block hover:text-[#1e6835] transition py-1">Our Story</a>
         <a href="#" onclick="showHealthBenefits(event); toggleMobileMenu();" id="mobile-benefits" class="block hover:text-[#1e6835] transition py-1">Health Benefits</a>
         <a href="#" onclick="showBlog(event); toggleMobileMenu();" id="mobile-blog" class="block hover:text-[#1e6835] transition py-1">Blog</a>
+        <a href="#" onclick="toggleCart(); toggleMobileMenu();" class="block hover:text-[#1e6835] transition py-1">Cart (<span id="mobile-cart-count">0</span>)</a>
         <a href="#" onclick="scrollToContact(event); toggleMobileMenu();" class="block hover:text-[#1e6835] transition py-1">Contact Us</a>
     </div>
     </div>
@@ -330,7 +505,7 @@
                                         Premium <br><span class="text-[#4caf50]">Pumpkin Seeds</span>
                                     </h2>
                                     <p class="text-gray-600 text-sm md:text-base font-medium mb-6 md:mb-8 max-w-md mx-auto md:mx-0">Rich in Zinc and Magnesium. Supports deep sleep, immunity, and heart health naturally.</p>
-                                    <a href="https://fktr.in/CSsConf" target="_blank" rel="noopener" class="inline-block bg-[#1e6835] hover:bg-green-800 text-white font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:-translate-y-1">Shop Now</a>
+                                    <button type="button" onclick="openCatalogProduct('Pumpkin Seeds')" class="inline-block bg-[#1e6835] hover:bg-green-800 text-white font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:-translate-y-1">Shop Now</button>
                                 </div>
                                 <div class="w-full md:w-1/2 h-full flex items-center justify-center relative mt-8 md:mt-0 hidden sm:flex">
                                     <div class="absolute w-56 h-56 md:w-72 md:h-72 lg:w-96 lg:h-96 bg-[#e8f5e9] rounded-full opacity-60 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></div>
@@ -349,7 +524,7 @@
                                         Power-Packed <br><span class="text-blue-600">Chia Seeds</span>
                                     </h2>
                                     <p class="text-gray-600 text-sm md:text-base font-medium mb-6 md:mb-8 max-w-md mx-auto md:mx-0">The ultimate superfood for hydration, gut health, and sustained energy throughout your day.</p>
-                                    <a href="https://fktr.in/ywd38BL" target="_blank" rel="noopener" class="inline-block bg-[#1e6835] hover:bg-green-800 text-white font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:-translate-y-1">Shop Now</a>
+                                    <button type="button" onclick="openCatalogProduct('Chia Seeds')" class="inline-block bg-[#1e6835] hover:bg-green-800 text-white font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:-translate-y-1">Shop Now</button>
                                 </div>
                                 <div class="w-full md:w-1/2 h-full flex items-center justify-center relative mt-8 md:mt-0 hidden sm:flex">
                                     <div class="absolute w-56 h-56 md:w-72 md:h-72 lg:w-96 lg:h-96 bg-blue-50 rounded-full opacity-60 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></div>
@@ -448,7 +623,7 @@
                             </div>
                             <h3 class="text-lg font-bold text-gray-900 mb-1 relative z-10">Chia Seeds</h3>
                             <p class="text-[11px] text-gray-500 mb-4 text-center h-8 font-medium relative z-10">Rich in Omega-3 & Fiber</p>
-                            <a href="https://fktr.in/ywd38BL" target="_blank" rel="noopener" class="bg-[#1e6835] hover:bg-green-800 text-white text-sm w-full text-center py-2.5 rounded-full font-bold transition mt-auto shadow-sm relative z-10">
+                            <a href="https://fktr.in/ywd38BL" onclick="addToCartFromCard(this); return false;" class="bg-[#1e6835] hover:bg-green-800 text-white text-sm w-full text-center py-2.5 rounded-full font-bold transition mt-auto shadow-sm relative z-10">
                                 Shop Now
                             </a>
                         </div>
@@ -460,7 +635,7 @@
                             </div>
                             <h3 class="text-lg font-bold text-gray-900 mb-1 relative z-10">Pumpkin Seeds</h3>
                             <p class="text-[11px] text-gray-500 mb-4 text-center h-8 font-medium relative z-10">Immunity & Heart Health</p>
-                            <a href="https://fktr.in/CSsConf" target="_blank" rel="noopener" class="bg-[#1e6835] hover:bg-green-800 text-white text-sm w-full text-center py-2.5 rounded-full font-bold transition mt-auto shadow-sm relative z-10">
+                            <a href="https://fktr.in/CSsConf" onclick="addToCartFromCard(this); return false;" class="bg-[#1e6835] hover:bg-green-800 text-white text-sm w-full text-center py-2.5 rounded-full font-bold transition mt-auto shadow-sm relative z-10">
                                 Shop Now
                             </a>
                         </div>
@@ -471,7 +646,7 @@
                             </div>
                             <h3 class="text-lg font-bold text-gray-900 mb-1 relative z-10">Flax Seeds</h3>
                             <p class="text-[11px] text-gray-500 mb-4 text-center h-8 font-medium relative z-10">Goodness of Fiber</p>
-                            <a href="https://fktr.in/POl6x7h" target="_blank" rel="noopener" class="bg-[#1e6835] hover:bg-green-800 text-white text-sm w-full text-center py-2.5 rounded-full font-bold transition mt-auto shadow-sm relative z-10">
+                            <a href="https://fktr.in/POl6x7h" onclick="addToCartFromCard(this); return false;" class="bg-[#1e6835] hover:bg-green-800 text-white text-sm w-full text-center py-2.5 rounded-full font-bold transition mt-auto shadow-sm relative z-10">
                                 Shop Now
                             </a>
                         </div>
@@ -482,7 +657,7 @@
                             </div>
                             <h3 class="text-lg font-bold text-gray-900 mb-1 relative z-10">Fennel Seeds</h3>
                             <p class="text-[11px] text-gray-500 mb-4 text-center h-8 font-medium relative z-10">Digestive Health</p>
-                            <a href="https://fktr.in/AOnaKTU" target="_blank" rel="noopener" class="bg-[#1e6835] hover:bg-green-800 text-white text-sm w-full text-center py-2.5 rounded-full font-bold transition mt-auto shadow-sm relative z-10">
+                            <a href="https://fktr.in/AOnaKTU" onclick="addToCartFromCard(this); return false;" class="bg-[#1e6835] hover:bg-green-800 text-white text-sm w-full text-center py-2.5 rounded-full font-bold transition mt-auto shadow-sm relative z-10">
                                 Shop Now
                             </a>
                         </div>
@@ -493,7 +668,7 @@
                             </div>
                             <h3 class="text-lg font-bold text-gray-900 mb-1 relative z-10">Basil Seeds</h3>
                             <p class="text-[11px] text-gray-500 mb-4 text-center h-8 font-medium relative z-10">Cooling & Refreshing</p>
-                            <a href="https://fktr.in/f0ioZ0B" target="_blank" rel="noopener" class="bg-[#1e6835] hover:bg-green-800 text-white text-sm w-full text-center py-2.5 rounded-full font-bold transition mt-auto shadow-sm relative z-10">
+                            <a href="https://fktr.in/f0ioZ0B" onclick="addToCartFromCard(this); return false;" class="bg-[#1e6835] hover:bg-green-800 text-white text-sm w-full text-center py-2.5 rounded-full font-bold transition mt-auto shadow-sm relative z-10">
                                 Shop Now
                             </a>
                         </div>
@@ -504,7 +679,7 @@
                             </div>
                             <h3 class="text-lg font-bold text-gray-900 mb-1 relative z-10">Sunflower Seeds</h3>
                             <p class="text-[11px] text-gray-500 mb-4 text-center h-8 font-medium relative z-10">High in Vitamin E</p>
-                            <a href="https://fktr.in/uFDXc3A" target="_blank" rel="noopener" class="bg-[#1e6835] hover:bg-green-800 text-white text-sm w-full text-center py-2.5 rounded-full font-bold transition mt-auto shadow-sm relative z-10">
+                            <a href="https://fktr.in/uFDXc3A" onclick="addToCartFromCard(this); return false;" class="bg-[#1e6835] hover:bg-green-800 text-white text-sm w-full text-center py-2.5 rounded-full font-bold transition mt-auto shadow-sm relative z-10">
                                 Shop Now
                             </a>
                         </div>
@@ -515,7 +690,7 @@
                             </div>
                             <h3 class="text-lg font-bold text-gray-900 mb-1 relative z-10">Watermelon Seeds</h3>
                             <p class="text-[11px] text-gray-500 mb-4 text-center h-8 font-medium relative z-10">Magnesium Rich</p>
-                            <a href="https://fktr.in/Yx4bWbI" target="_blank" rel="noopener" class="bg-[#1e6835] hover:bg-green-800 text-white text-sm w-full text-center py-2.5 rounded-full font-bold transition mt-auto shadow-sm relative z-10">
+                            <a href="https://fktr.in/Yx4bWbI" onclick="addToCartFromCard(this); return false;" class="bg-[#1e6835] hover:bg-green-800 text-white text-sm w-full text-center py-2.5 rounded-full font-bold transition mt-auto shadow-sm relative z-10">
                                 Shop Now
                             </a>
                         </div>
@@ -526,7 +701,7 @@
                             </div>
                             <h3 class="text-lg font-bold text-gray-900 mb-1 relative z-10">Mix Seeds</h3>
                             <p class="text-[11px] text-gray-500 mb-4 text-center h-8 font-medium relative z-10">Power Packed Blend</p>
-                            <a href="https://fktr.in/V123ySE" target="_blank" rel="noopener" class="bg-[#1e6835] hover:bg-green-800 text-white text-sm w-full text-center py-2.5 rounded-full font-bold transition mt-auto shadow-sm relative z-10">
+                            <a href="https://fktr.in/V123ySE" onclick="addToCartFromCard(this); return false;" class="bg-[#1e6835] hover:bg-green-800 text-white text-sm w-full text-center py-2.5 rounded-full font-bold transition mt-auto shadow-sm relative z-10">
                                 Shop Now
                             </a>
                         </div>
@@ -539,7 +714,7 @@
                             </div>
                             <h3 class="text-lg font-bold text-gray-900 mb-1 relative z-10">Seed Powder</h3>
                             <p class="text-[11px] text-gray-500 mb-4 text-center h-8 font-medium relative z-10">Complete Nutritional Boost</p>
-                            <a href="https://fktr.in/g8l819a" target="_blank" rel="noopener" class="bg-[#1e6835] hover:bg-green-800 text-white text-sm w-full text-center py-2.5 rounded-full font-bold transition mt-auto shadow-sm relative z-10">
+                            <a href="https://fktr.in/g8l819a" onclick="addToCartFromCard(this); return false;" class="bg-[#1e6835] hover:bg-green-800 text-white text-sm w-full text-center py-2.5 rounded-full font-bold transition mt-auto shadow-sm relative z-10">
                                 Shop Now
                             </a>
                         </div>
@@ -952,22 +1127,22 @@
                     
                     <!-- Instagram Embed 1 -->
                     <div class="w-full flex justify-center bg-white p-2 md:p-4 rounded-2xl shadow-sm border border-gray-100">
-                        <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/seedghar/reel/DZxLERRBxcX/" data-instgrm-version="14" style="background:#FFF; border:0; border-radius:12px; margin: 0; max-width:400px; min-width:300px; padding:0; width:100%;"></blockquote>
+                        <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/seedghar/reel/DZxLERRBxcX/" data-instgrm-version="14" style="background:#FFF; border:0; border-radius:12px; margin: 0; max-width:400px; min-width:300px; padding:0; width:100%;"><a href="https://www.instagram.com/seedghar/reel/DZxLERRBxcX/" target="_blank" rel="noopener noreferrer" class="block rounded-xl border border-gray-100 bg-white p-6 text-center shadow-sm"><span class="mb-3 block text-4xl text-pink-600"><i class="fa-brands fa-instagram"></i></span><strong class="block text-gray-900">Watch this Seed Ghar Reel</strong><span class="mt-2 block text-sm text-gray-500">Open on Instagram ↗</span></a></blockquote>
                     </div>
 
                     <!-- Instagram Embed 2 -->
                     <div class="w-full flex justify-center bg-white p-2 md:p-4 rounded-2xl shadow-sm border border-gray-100">
-                        <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/seedghar/p/DZxILr2AXkB/" data-instgrm-version="14" style="background:#FFF; border:0; border-radius:12px; margin: 0; max-width:400px; min-width:300px; padding:0; width:100%;"></blockquote>
+                        <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/seedghar/p/DZxILr2AXkB/" data-instgrm-version="14" style="background:#FFF; border:0; border-radius:12px; margin: 0; max-width:400px; min-width:300px; padding:0; width:100%;"><a href="https://www.instagram.com/seedghar/p/DZxILr2AXkB/" target="_blank" rel="noopener noreferrer" class="block rounded-xl border border-gray-100 bg-white p-6 text-center shadow-sm"><span class="mb-3 block text-4xl text-pink-600"><i class="fa-brands fa-instagram"></i></span><strong class="block text-gray-900">View Seed Ghar’s Instagram post</strong><span class="mt-2 block text-sm text-gray-500">Open on Instagram ↗</span></a></blockquote>
                     </div>
 
                     <!-- Instagram Embed 3 -->
                     <div class="w-full flex justify-center bg-white p-2 md:p-4 rounded-2xl shadow-sm border border-gray-100">
-                        <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/seedghar/reel/DZuKniyg1qD/" data-instgrm-version="14" style="background:#FFF; border:0; border-radius:12px; margin: 0; max-width:400px; min-width:300px; padding:0; width:100%;"></blockquote>
+                        <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/seedghar/reel/DZuKniyg1qD/" data-instgrm-version="14" style="background:#FFF; border:0; border-radius:12px; margin: 0; max-width:400px; min-width:300px; padding:0; width:100%;"><a href="https://www.instagram.com/seedghar/reel/DZuKniyg1qD/" target="_blank" rel="noopener noreferrer" class="block rounded-xl border border-gray-100 bg-white p-6 text-center shadow-sm"><span class="mb-3 block text-4xl text-pink-600"><i class="fa-brands fa-instagram"></i></span><strong class="block text-gray-900">Watch this Seed Ghar Reel</strong><span class="mt-2 block text-sm text-gray-500">Open on Instagram ↗</span></a></blockquote>
                     </div>
 
                     <!-- Instagram Embed 4 -->
                     <div class="w-full flex justify-center bg-white p-2 md:p-4 rounded-2xl shadow-sm border border-gray-100">
-                        <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/seedghar/reel/DZmLEO6AYBo/" data-instgrm-version="14" style="background:#FFF; border:0; border-radius:12px; margin: 0; max-width:400px; min-width:300px; padding:0; width:100%;"></blockquote>
+                        <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/seedghar/reel/DZmLEO6AYBo/" data-instgrm-version="14" style="background:#FFF; border:0; border-radius:12px; margin: 0; max-width:400px; min-width:300px; padding:0; width:100%;"><a href="https://www.instagram.com/seedghar/reel/DZmLEO6AYBo/" target="_blank" rel="noopener noreferrer" class="block rounded-xl border border-gray-100 bg-white p-6 text-center shadow-sm"><span class="mb-3 block text-4xl text-pink-600"><i class="fa-brands fa-instagram"></i></span><strong class="block text-gray-900">Watch this Seed Ghar Reel</strong><span class="mt-2 block text-sm text-gray-500">Open on Instagram ↗</span></a></blockquote>
                     </div>
 
                 </div>
@@ -982,6 +1157,123 @@
 
     </main>
 
+    <div id="cart-overlay" class="cart-overlay" onclick="toggleCart()"></div>
+    <aside id="cart-drawer" class="cart-drawer">
+        <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+            <div>
+                <h2 class="text-xl font-bold text-gray-900">Your Cart</h2>
+                <p class="text-sm text-gray-500">Review items before checkout.</p>
+            </div>
+            <button onclick="toggleCart()" class="text-gray-500 hover:text-gray-900 text-2xl leading-none">&times;</button>
+        </div>
+        <div id="cart-items" class="px-6 py-4 space-y-4 overflow-y-auto" style="max-height: calc(100vh - 260px);"></div>
+        <div class="border-t border-gray-200 px-6 py-4 space-y-3">
+            <div class="flex items-center justify-between text-sm text-gray-500">
+                <span>MRP Total</span>
+                <span id="cart-mrp-total">₹0</span>
+            </div>
+            <div class="flex items-center justify-between text-sm text-green-700">
+                <span>You Save</span>
+                <span id="cart-savings">₹0</span>
+            </div>
+            <div class="flex items-center justify-between text-base font-bold text-black border-t border-gray-200 pt-3">
+                <span>Total to Pay</span>
+                <span id="cart-total">₹0</span>
+            </div>
+            <button onclick="toggleCart()" class="w-full bg-white text-[#1e6835] border border-[#1e6835] font-bold py-3 rounded-lg">Continue Shopping</button>
+            <button onclick="proceedToCheckout()" class="w-full bg-[#1e6835] hover:bg-green-800 text-white font-bold py-3 rounded-lg">Proceed to Checkout</button>
+        </div>
+    </aside>
+
+    <div id="product-detail-modal" class="fixed inset-0 z-[100] hidden items-center justify-center overflow-auto bg-black/50 p-4" onclick="if (event.target === this) closeProductModal()">
+        <div class="bg-white rounded-[1.5rem] shadow-2xl max-w-6xl w-full mx-auto overflow-hidden">
+            <div class="flex items-start justify-between border-b border-gray-200 px-6 py-5">
+                <div>
+                    <h2 id="modal-product-name" class="text-2xl font-bold text-gray-900"></h2>
+                    <p id="modal-product-subtitle" class="text-sm text-gray-500 mt-2"></p>
+                </div>
+                <button onclick="closeProductModal()" class="text-gray-500 hover:text-gray-900 text-3xl leading-none">&times;</button>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-[1.3fr_0.9fr] gap-6 p-6">
+                <div class="space-y-4">
+                    <div id="product-detail-image-frame" class="product-detail-image-frame">
+                        <img id="modal-product-image" src="" alt="Product image">
+                    </div>
+                    <p id="modal-product-description" class="text-gray-600"></p>
+                    <div id="modal-product-features" class="grid gap-2"></div>
+                </div>
+                <div class="space-y-4">
+                    <div class="rounded-[1.5rem] border border-gray-200 p-5 bg-[#f8fafc]">
+                        <div class="text-xs font-bold tracking-[0.24em] uppercase text-gray-500 mb-3">Product Info</div>
+                        <div class="mb-4">
+                            <div class="text-sm text-gray-500">Price</div>
+                            <div id="modal-product-price" class="text-3xl font-bold text-gray-900"></div>
+                            <div id="modal-product-mrp" class="text-sm text-gray-500 mt-1"></div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="text-sm text-gray-500">Pack / Weight</div>
+                            <div id="modal-product-pack" class="text-base font-semibold text-gray-900"></div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="text-sm font-semibold text-gray-700 mb-2">Choose weight</div>
+                            <div id="modal-product-variants" class="grid gap-2"></div>
+                        </div>
+                        <div id="modal-availability-row" class="mb-4">
+                            <div class="text-sm text-gray-500">Availability</div>
+                            <div id="modal-product-availability" class="text-base font-semibold text-gray-900">In stock</div>
+                        </div>
+                    </div>
+                    <div class="rounded-[1.5rem] border border-gray-200 p-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-sm font-semibold text-gray-700">Quantity</span>
+                        </div>
+                        <div class="flex items-center justify-between gap-3">
+                            <button onclick="changeModalQty(-1)" class="h-12 w-12 rounded-full border border-gray-300 text-xl text-gray-700 hover:bg-gray-100">-</button>
+                            <span id="modal-quantity" class="text-xl font-bold text-gray-900">1</span>
+                            <button onclick="changeModalQty(1)" class="h-12 w-12 rounded-full border border-gray-300 text-xl text-gray-700 hover:bg-gray-100">+</button>
+                        </div>
+                    </div>
+                    <button id="modal-add-to-cart" onclick="addCurrentModalItemToCart()" class="w-full bg-[#1e6835] hover:bg-green-800 text-white font-bold py-3 rounded-full">Add to Cart</button>
+                    <a id="modal-buy-flipkart" href="#" target="_blank" rel="noopener" class="w-full block text-center border border-gray-200 rounded-full py-3 text-gray-900 font-semibold">Buy on Flipkart</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="checkout-modal" class="fixed inset-0 z-[110] hidden items-center justify-center overflow-auto bg-black/50 p-4" onclick="if (event.target === this) closeCheckout()">
+        <div class="bg-white rounded-[1.5rem] shadow-2xl max-w-4xl w-full mx-auto overflow-hidden">
+            <div class="flex items-start justify-between border-b border-gray-200 px-6 py-5">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">Delivery details</h2>
+                    <p class="text-sm text-gray-500 mt-1">Enter the details needed to ship your order.</p>
+                </div>
+                <button type="button" onclick="closeCheckout()" class="text-gray-500 hover:text-gray-900 text-3xl leading-none">&times;</button>
+            </div>
+            <form id="checkout-form" onsubmit="submitCheckout(event)" class="grid gap-5 p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label class="grid gap-1 text-sm font-semibold text-gray-700">Full name *<input name="fullName" required autocomplete="name" class="rounded-lg border border-gray-300 px-3 py-3 font-normal" placeholder="Your full name"></label>
+                    <label class="grid gap-1 text-sm font-semibold text-gray-700">Mobile number *<input name="phone" required pattern="[0-9]{10}" inputmode="numeric" autocomplete="tel" class="rounded-lg border border-gray-300 px-3 py-3 font-normal" placeholder="10-digit mobile number"></label>
+                </div>
+                <label class="grid gap-1 text-sm font-semibold text-gray-700">Email address *<input type="email" name="email" required autocomplete="email" class="rounded-lg border border-gray-300 px-3 py-3 font-normal" placeholder="you@example.com"></label>
+                <label class="grid gap-1 text-sm font-semibold text-gray-700">Address *<textarea name="address" required autocomplete="street-address" rows="3" class="rounded-lg border border-gray-300 px-3 py-3 font-normal" placeholder="House / flat number, street and area"></textarea></label>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label class="grid gap-1 text-sm font-semibold text-gray-700">Landmark<input name="landmark" autocomplete="address-line2" class="rounded-lg border border-gray-300 px-3 py-3 font-normal" placeholder="Nearby landmark (optional)"></label>
+                    <label class="grid gap-1 text-sm font-semibold text-gray-700">PIN code *<input name="postalCode" required pattern="[0-9]{6}" inputmode="numeric" autocomplete="postal-code" class="rounded-lg border border-gray-300 px-3 py-3 font-normal" placeholder="6-digit PIN code"></label>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label class="grid gap-1 text-sm font-semibold text-gray-700">City *<input name="city" required autocomplete="address-level2" class="rounded-lg border border-gray-300 px-3 py-3 font-normal" placeholder="City"></label>
+                    <label class="grid gap-1 text-sm font-semibold text-gray-700">State *<input name="state" required autocomplete="address-level1" class="rounded-lg border border-gray-300 px-3 py-3 font-normal" placeholder="State"></label>
+                </div>
+                <label class="flex items-start gap-3 text-sm text-gray-600"><input type="checkbox" name="consent" required class="mt-1 h-4 w-4"> I confirm that these delivery details are correct and I agree to proceed with payment.</label>
+                <div id="checkout-error" class="hidden rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"></div>
+                <div class="flex flex-col-reverse sm:flex-row gap-3 sm:justify-end border-t border-gray-200 pt-5">
+                    <button type="button" onclick="closeCheckout()" class="w-full sm:w-auto rounded-lg border border-gray-300 px-5 py-3 font-bold text-gray-700">Back to cart</button>
+                    <button type="submit" class="w-full sm:w-auto rounded-lg bg-[#1e6835] px-5 py-3 font-bold text-white hover:bg-green-800">Continue to secure payment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <footer id="site-footer" class="bg-gray-50 pt-16 pb-8 border-t border-gray-200 mt-4 relative">
         <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
@@ -994,7 +1286,7 @@
                     </p>
                     <div class="flex space-x-4">
                         <!-- <a href="#" class="bg-blue-600 text-white w-7 h-7 rounded-full flex items-center justify-center text-xs hover:bg-blue-700"><i class="fa-brands fa-facebook-f"></i></a> -->
-                        <a href="https://www.instagram.com/seedghar/"" class="bg-pink-600 text-white w-7 h-7 rounded-full flex items-center justify-center text-xs hover:bg-pink-700"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="https://www.instagram.com/seedghar/" class="bg-pink-600 text-white w-7 h-7 rounded-full flex items-center justify-center text-xs hover:bg-pink-700"><i class="fa-brands fa-instagram"></i></a>
                         <a href="#" class="bg-red-600 text-white w-7 h-7 rounded-full flex items-center justify-center text-xs hover:bg-red-700"><i class="fa-brands fa-youtube"></i></a>
                     </div>
                 </div>
@@ -1067,6 +1359,7 @@
         // Show Home View
         function showHome(e) {
             if(e) e.preventDefault();
+            closeProductModal();
             hideAllViews();
             document.getElementById('home-view').style.display = 'block';
             const navEl = document.getElementById('nav-home');
@@ -1079,6 +1372,7 @@
         // Show All Products View
         function showAllProducts(e) {
             if(e) e.preventDefault();
+            closeProductModal();
             hideAllViews();
             document.getElementById('products-view').style.display = 'block';
             const navEl = document.getElementById('nav-products');
@@ -1123,9 +1417,7 @@
             if(mobEl) mobEl.classList.add('text-[#1e6835]', 'font-extrabold', 'pl-2', 'border-l-4', 'border-[#1e6835]');
             
             // Re-process Instagram embeds if the script is loaded to fix any layout issues after unhiding
-            if (window.instgrm) {
-                window.instgrm.Embeds.process();
-            }
+            processInstagramEmbeds();
             
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -1215,10 +1507,685 @@
         }
 
         // Start carousel when page loads
-        document.addEventListener('DOMContentLoaded', initCarousel);
+        document.addEventListener('DOMContentLoaded', () => {
+            initCarousel();
+            convertShopLinksToAddCart();
+            updateCartUI();
+        });
+
+        // Basic cart state and drawer behavior
+        let cartItems = [];
+
+        function addToCartFromCard(button) {
+            const card = button.closest('.group, .bg-white');
+            if (!card) return;
+            const name = card.querySelector('h3')?.innerText.trim() || 'Seed Product';
+            const desc = card.querySelector('p')?.innerText.trim() || '';
+            const price = 149;
+            const existing = cartItems.find(item => item.name === name);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                cartItems.push({ name, desc, price, quantity: 1 });
+            }
+            updateCartUI();
+            openCart();
+        }
+
+        function convertShopLinksToAddCart() {
+            const selectors = ['#products-view .grid a', '#home-view #seeds-carousel a'];
+            selectors.forEach(selector => {
+                document.querySelectorAll(selector).forEach(a => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = a.className;
+                    btn.innerText = 'Add to Cart';
+                    btn.onclick = () => addToCartFromCard(btn);
+                    a.parentNode.replaceChild(btn, a);
+                });
+            });
+        }
+
+        function updateCartUI() {
+            const count = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cart-count').innerText = count;
+            const mobileCount = document.getElementById('mobile-cart-count');
+            if (mobileCount) mobileCount.innerText = count;
+            document.getElementById('drawer-item-count').innerText = `${count} item${count === 1 ? '' : 's'}`;
+            const itemsContainer = document.getElementById('cart-items');
+            const emptyState = document.getElementById('cart-empty');
+            const actions = document.getElementById('cart-actions');
+            itemsContainer.innerHTML = '';
+
+            if (!cartItems.length) {
+                emptyState.style.display = 'block';
+                actions.style.display = 'none';
+                document.getElementById('cart-subtotal').innerText = '₹0';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            actions.style.display = 'block';
+
+            cartItems.forEach(item => {
+                const itemEl = document.createElement('div');
+                itemEl.className = 'cart-item';
+
+                const content = document.createElement('div');
+                const title = document.createElement('div');
+                title.className = 'cart-item-title';
+                title.innerText = item.name;
+
+                const desc = document.createElement('div');
+                desc.className = 'cart-item-meta';
+                desc.innerText = item.desc;
+
+                const meta = document.createElement('div');
+                meta.className = 'cart-item-meta';
+                meta.innerText = `Qty ${item.quantity} · ₹${item.price} each`;
+
+                content.appendChild(title);
+                if (item.desc) content.appendChild(desc);
+                content.appendChild(meta);
+
+                const controls = document.createElement('div');
+                controls.className = 'cart-item-controls';
+
+                const decrement = document.createElement('button');
+                decrement.type = 'button';
+                decrement.className = 'cart-control-btn';
+                decrement.innerText = '-';
+                decrement.onclick = () => changeCartQty(item.name, -1);
+
+                const qtyLabel = document.createElement('span');
+                qtyLabel.innerText = item.quantity;
+                qtyLabel.className = 'text-sm text-gray-600';
+
+                const increment = document.createElement('button');
+                increment.type = 'button';
+                increment.className = 'cart-control-btn';
+                increment.innerText = '+';
+                increment.onclick = () => changeCartQty(item.name, 1);
+
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'cart-control-btn';
+                removeBtn.innerText = 'Remove';
+                removeBtn.onclick = () => removeFromCart(item.name);
+                removeBtn.style.padding = '0.3rem 0.65rem';
+
+                controls.appendChild(decrement);
+                controls.appendChild(qtyLabel);
+                controls.appendChild(increment);
+                controls.appendChild(removeBtn);
+
+                itemEl.appendChild(content);
+                itemEl.appendChild(controls);
+                itemsContainer.appendChild(itemEl);
+            });
+
+            const subtotal = cartItems.reduce((sum, item) => sum + item.quantity * item.price, 0);
+            document.getElementById('cart-subtotal').innerText = `₹${subtotal}`;
+        }
+
+        function changeCartQty(name, amount) {
+            const item = cartItems.find(item => item.name === name);
+            if (!item) return;
+            item.quantity += amount;
+            if (item.quantity <= 0) {
+                cartItems = cartItems.filter(item => item.name !== name);
+            }
+            updateCartUI();
+        }
+
+        function removeFromCart(name) {
+            cartItems = cartItems.filter(item => item.name !== name);
+            updateCartUI();
+        }
+
+        function clearCart() {
+            cartItems = [];
+            updateCartUI();
+        }
+
+        function toggleCart() {
+            const overlay = document.getElementById('cart-overlay');
+            const drawer = document.getElementById('cart-drawer');
+            const isOpen = drawer.classList.contains('open');
+            if (isOpen) {
+                closeCart();
+            } else {
+                openCart();
+            }
+        }
+
+        function openCart() {
+            document.getElementById('cart-overlay').classList.add('open');
+            const drawer = document.getElementById('cart-drawer');
+            drawer.classList.add('open');
+            drawer.setAttribute('aria-hidden', 'false');
+        }
+
+        function closeCart() {
+            document.getElementById('cart-overlay').classList.remove('open');
+            const drawer = document.getElementById('cart-drawer');
+            drawer.classList.remove('open');
+            drawer.setAttribute('aria-hidden', 'true');
+        }
+
+        function proceedToCheckout() {
+            if (!seedCart.items.length) {
+                alert('Your cart is empty. Add a product before checkout.');
+                return;
+            }
+            const checkout = document.getElementById('checkout-modal');
+            if (!checkout) return;
+            closeCart();
+            checkout.classList.remove('hidden');
+            checkout.classList.add('flex');
+            document.getElementById('checkout-form')?.reset();
+            document.getElementById('checkout-error')?.classList.add('hidden');
+        }
+
+        function closeCheckout() {
+            const checkout = document.getElementById('checkout-modal');
+            if (!checkout) return;
+            checkout.classList.add('hidden');
+            checkout.classList.remove('flex');
+        }
+
+        async function submitCheckout(event) {
+            event.preventDefault();
+            const form = event.currentTarget;
+            if (!form.reportValidity() || !seedCart.items.length) return;
+
+            const details = Object.fromEntries(new FormData(form).entries());
+            localStorage.setItem('seedghar_shipping_details', JSON.stringify(details));
+            const submitButton = form.querySelector('button[type="submit"]');
+            const errorBox = document.getElementById('checkout-error');
+            submitButton.disabled = true;
+            submitButton.innerText = 'Creating secure order...';
+            errorBox.classList.add('hidden');
+
+            try {
+                const apiBaseUrl = window.location.protocol === 'file:' || ['localhost', '127.0.0.1'].includes(window.location.hostname)
+                    ? 'http://localhost:8787'
+                    : (window.SEEDGHAR_API_URL || 'https://h7ghhk8dea.execute-api.ap-south-1.amazonaws.com');
+                const response = await fetch(`${apiBaseUrl}/api/orders`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        items: seedCart.items.map(item => ({ variantId: item.id, quantity: item.quantity })),
+                        shipping: details
+                    })
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || 'Unable to create order');
+                localStorage.setItem('seedghar_pending_order', JSON.stringify(result));
+                localStorage.setItem('seedghar_checkout_cart_backup', JSON.stringify(seedCart.items));
+                seedCart.items = [];
+                saveCart();
+                updateCartUI();
+                closeCheckout();
+                openPaymentGateway(result);
+            } catch (error) {
+                errorBox.innerText = `${error.message}. Please start the order service and try again.`;
+                errorBox.classList.remove('hidden');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.innerText = 'Continue to secure payment';
+            }
+        }
+
+        function openPaymentGateway(order) {
+            if (!order.paymentSessionId || typeof Cashfree !== 'function') {
+                alert('Payment gateway is unavailable. Please try again.');
+                return;
+            }
+            const cashfree = Cashfree({ mode: order.cashfreeMode || 'sandbox' });
+            cashfree.checkout({
+                paymentSessionId: order.paymentSessionId,
+                redirectTarget: '_self'
+            }).then(result => {
+                if (result?.error) console.error('Cashfree checkout error:', result.error);
+            });
+        }
     </script>
     
     <!-- Instagram Official Embed Script -->
-    <script async src="//www.instagram.com/embed.js"></script>
+    <script>
+        function attachAddToCartButtons() {
+            document.querySelectorAll('.seed-card a, .seed-card button').forEach(el => {
+                if (el.textContent.trim().toLowerCase() === 'shop now') {
+                    const card = el.closest('.seed-card');
+                    if (!card || card.querySelector('.cart-add-btn')) return;
+                    const addBtn = document.createElement('button');
+                    addBtn.type = 'button';
+                    addBtn.className = 'cart-add-btn mt-3 w-full bg-[#f59e0b] hover:bg-[#d97706] text-white font-bold py-2 px-4 rounded-full shadow-sm transition';
+                    addBtn.innerText = 'Add to Cart';
+                    addBtn.onclick = event => {
+                        event.preventDefault();
+                        addToCartFromCard(el);
+                    };
+                    el.insertAdjacentElement('afterend', addBtn);
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', attachAddToCartButtons);
+
+        function attachProductDetailButtons() {
+            document.querySelectorAll('.seed-card a, .seed-card button').forEach(el => {
+                if (el.textContent.trim().toLowerCase() !== 'shop now') return;
+                const card = el.closest('.seed-card');
+                if (!card) return;
+                el.addEventListener('click', event => {
+                    event.preventDefault();
+                    openProductModal(getProductDataFromCard(card, el.getAttribute('href') || ''));
+                });
+            });
+        }
+
+        function renderShopNowButtons() {
+            document.querySelectorAll('.seed-card').forEach(card => {
+                if (card.querySelector('.shop-now-btn')) return;
+                const shopBtn = document.createElement('button');
+                shopBtn.type = 'button';
+                shopBtn.className = 'shop-now-btn mt-3 w-full bg-[#e86a33] hover:bg-[#d15826] text-white text-sm font-bold py-2.5 px-4 rounded-full transition';
+                shopBtn.innerText = 'Shop Now';
+                shopBtn.addEventListener('click', event => {
+                    event.preventDefault();
+                    const flipkartUrl = card.querySelector('a[href*="fktr.in"]')?.getAttribute('href') || '';
+                    openProductModal(getProductDataFromCard(card, flipkartUrl));
+                });
+                const addToCartBtn = card.querySelector('button, a');
+                if (addToCartBtn) addToCartBtn.insertAdjacentElement('afterend', shopBtn);
+                else card.appendChild(shopBtn);
+            });
+        }
+
+    </script>
+    <script>
+        const cartStorageKey = 'seedghar_cart_data';
+        const seedCart = { items: [] };
+        let currentModalProduct = null;
+        let currentModalQty = 1;
+        const productVariants = {
+            'Chia Seeds': [
+                { weight: '250 gm', price: 149, mrp: 179 },
+                { weight: '450 gm', price: 249, mrp: 299 },
+                { weight: '900 gm', price: 449, mrp: 549 }
+            ],
+            'Pumpkin Seeds': [
+                { weight: '250 gm', price: 129, mrp: 159 },
+                { weight: '450 gm', price: 229, mrp: 279 },
+                { weight: '900 gm', price: 399, mrp: 499 }
+            ],
+            'Flax Seeds': [
+                { weight: '250 gm', price: 119, mrp: 149 },
+                { weight: '450 gm', price: 199, mrp: 249 },
+                { weight: '900 gm', price: 349, mrp: 449 }
+            ],
+            'Fennel Seeds': [
+                { weight: '250 gm', price: 89, mrp: 109 },
+                { weight: '450 gm', price: 159, mrp: 199 },
+                { weight: '900 gm', price: 289, mrp: 349 }
+            ],
+            'Basil Seeds': [
+                { weight: '250 gm', price: 99, mrp: 129 },
+                { weight: '450 gm', price: 179, mrp: 229 },
+                { weight: '900 gm', price: 319, mrp: 399 }
+            ],
+            'Sunflower Seeds': [
+                { weight: '250 gm', price: 109, mrp: 139 },
+                { weight: '450 gm', price: 199, mrp: 249 },
+                { weight: '900 gm', price: 359, mrp: 449 }
+            ],
+            'Watermelon Seeds': [
+                { weight: '250 gm', price: 119, mrp: 149 },
+                { weight: '450 gm', price: 219, mrp: 269 },
+                { weight: '900 gm', price: 399, mrp: 499 }
+            ],
+            'Mix Seeds': [
+                { weight: '250 gm', price: 249, mrp: 299 },
+                { weight: '450 gm', price: 429, mrp: 499 },
+                { weight: '900 gm', price: 799, mrp: 949 }
+            ],
+            'Seed Powder': [
+                { weight: '250 gm', price: 199, mrp: 249 },
+                { weight: '450 gm', price: 349, mrp: 429 },
+                { weight: '900 gm', price: 649, mrp: 799 }
+            ]
+        };
+
+        function getProductVariants(name) {
+            return productVariants[name] || [{ weight: '250 gm', price: 0, mrp: 0 }];
+        }
+
+        function selectModalVariant(index) {
+            if (!currentModalProduct) return;
+            const variant = getProductVariants(currentModalProduct.name)[index];
+            if (!variant) return;
+            currentModalProduct = { ...currentModalProduct, ...variant, variantIndex: index };
+            const modal = document.getElementById('product-detail-modal');
+            modal.querySelector('#modal-product-price').innerText = formatPrice(variant.price);
+            modal.querySelector('#modal-product-mrp').innerText = `MRP ${formatPrice(variant.mrp)}`;
+            modal.querySelector('#modal-product-pack').innerText = variant.weight;
+            const imageFrame = modal.querySelector('#product-detail-image-frame');
+            imageFrame.dataset.weight = variant.weight.toLowerCase().replace(/\s+/g, '-');
+            imageFrame.querySelector('img').style.transform = ['scale(0.72)', 'scale(0.86)', 'scale(1)'][index] || 'scale(0.86)';
+            modal.querySelectorAll('[data-variant-index]').forEach(option => {
+                option.classList.toggle('border-[#1e6835]', Number(option.dataset.variantIndex) === index);
+                option.classList.toggle('bg-[#e8f5ee]', Number(option.dataset.variantIndex) === index);
+            });
+        }
+
+        function loadCart() {
+            const saved = localStorage.getItem(cartStorageKey);
+            if (saved) {
+                try {
+                    seedCart.items = JSON.parse(saved) || [];
+                } catch (error) {
+                    seedCart.items = [];
+                }
+            }
+            const pendingOrder = localStorage.getItem('seedghar_pending_order');
+            if (pendingOrder) {
+                try {
+                    const parsedOrder = JSON.parse(pendingOrder);
+                    if (!parsedOrder.orderId || typeof parsedOrder.amount !== 'number') {
+                        localStorage.removeItem('seedghar_pending_order');
+                    }
+                } catch (error) {
+                    localStorage.removeItem('seedghar_pending_order');
+                }
+            }
+        }
+
+        function saveCart() {
+            localStorage.setItem(cartStorageKey, JSON.stringify(seedCart.items));
+        }
+
+        function formatPrice(value) {
+            if (typeof value !== 'number' || Number.isNaN(value)) {
+                return '₹0';
+            }
+            return `₹${value.toLocaleString('en-IN')}`;
+        }
+
+        function getCartCount() {
+            return seedCart.items.reduce((sum, item) => sum + item.quantity, 0);
+        }
+
+        function getProductDataFromCard(card, flipkartUrl) {
+            const name = card.querySelector('h3')?.innerText.trim() || card.querySelector('h2')?.innerText.trim() || 'Product';
+            const description = card.querySelector('p')?.innerText.trim() || '';
+            const image = card.querySelector('img')?.src || '';
+            let price = 0;
+            const cataloguePrices = {
+                'Chia Seeds': 149,
+                'Pumpkin Seeds': 129,
+                'Flax Seeds': 119,
+                'Fennel Seeds': 89,
+                'Basil Seeds': 99,
+                'Sunflower Seeds': 109,
+                'Watermelon Seeds': 119,
+                'Mix Seeds': 249,
+                'Seed Powder': 199
+            };
+            const text = card.innerText || '';
+            const priceMatch = text.match(/₹\s*([\d,]+)/);
+            if (priceMatch) {
+                price = Number(priceMatch[1].replace(/,/g, ''));
+            } else {
+                price = cataloguePrices[name] || 0;
+            }
+            const packMatch = text.match(/(\d+(?:\.\d+)?\s*(?:kg|g|gram|grams|pack|packet|pcs|piece|pieces|ltr|ml))/i);
+            const pack = packMatch ? packMatch[0] : '';
+            const features = Array.from(card.querySelectorAll('li')).map(li => li.innerText.trim()).filter(Boolean);
+            return {
+                id: name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+                name,
+                description,
+                image,
+                price,
+                pack,
+                flipkartUrl,
+                features,
+                quantity: 1
+            };
+        }
+
+        function openCatalogProduct(productName) {
+            const cards = document.querySelectorAll('#products-view .grid > div');
+            const card = Array.from(cards).find(item => item.querySelector('h3')?.innerText.trim() === productName);
+            if (!card) return;
+            openProductModal(getProductDataFromCard(card, ''));
+        }
+
+        function openProductModal(product) {
+            currentModalProduct = product;
+            currentModalQty = 1;
+            const modal = document.getElementById('product-detail-modal');
+            if (!modal) return;
+            modal.querySelector('#modal-product-name').innerText = product.name;
+            modal.querySelector('#modal-product-subtitle').innerText = product.pack ? product.pack : 'Product details';
+            modal.querySelector('#modal-product-description').innerText = product.description || 'No additional product details are available.';
+            modal.querySelector('#modal-product-image').src = product.image || 'https://placehold.co/640x480?text=No+image';
+            const variants = getProductVariants(product.name);
+            modal.querySelector('#modal-product-variants').innerHTML = variants.map((variant, index) => `
+                <button type="button" data-variant-index="${index}" onclick="selectModalVariant(${index})" class="flex items-center justify-between rounded-xl border border-gray-200 px-3 py-2 text-left hover:border-[#1e6835]">
+                    <span class="font-semibold text-gray-900">${variant.weight}</span>
+                    <span><strong class="text-[#1e6835]">${formatPrice(variant.price)}</strong> <span class="text-xs text-gray-400 line-through">${formatPrice(variant.mrp)}</span></span>
+                </button>
+            `).join('');
+            currentModalProduct = { ...product, ...variants[0], variantIndex: 0 };
+            modal.querySelector('#modal-product-price').innerText = formatPrice(variants[0].price);
+            modal.querySelector('#modal-product-mrp').innerText = `MRP ${formatPrice(variants[0].mrp)}`;
+            modal.querySelector('#modal-product-pack').innerText = variants[0].weight;
+            selectModalVariant(0);
+            modal.querySelector('#modal-product-availability').innerText = product.price ? 'In stock' : 'Available';
+            modal.querySelector('#modal-quantity').innerText = currentModalQty;
+            const buyLink = modal.querySelector('#modal-buy-flipkart');
+            if (product.flipkartUrl) {
+                buyLink.href = product.flipkartUrl;
+                buyLink.style.display = 'block';
+            } else {
+                buyLink.style.display = 'none';
+            }
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeProductModal() {
+            const modal = document.getElementById('product-detail-modal');
+            if (!modal) return;
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape') closeProductModal();
+        });
+
+        function changeModalQty(delta) {
+            currentModalQty = Math.max(1, currentModalQty + delta);
+            const qtyEl = document.getElementById('modal-quantity');
+            if (qtyEl) qtyEl.innerText = currentModalQty;
+        }
+
+        function addCurrentModalItemToCart() {
+            if (!currentModalProduct) return;
+            addProductVariantToCart({ ...currentModalProduct, quantity: currentModalQty });
+            closeProductModal();
+            openCart();
+        }
+
+        function addToCartFromCard(button, overrideProduct) {
+            if (!overrideProduct) {
+                const card = button?.closest('.seed-card') || button?.parentElement;
+                const product = getProductDataFromCard(card, button?.closest('a')?.getAttribute('href'));
+                if (product) openProductModal(product);
+                return;
+            }
+            addProductVariantToCart(overrideProduct);
+        }
+
+        function addProductVariantToCart(product) {
+            const variantId = `${product.id}-${product.weight.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+            const cartProduct = { ...product, id: variantId };
+            const existing = seedCart.items.find(item => item.id === cartProduct.id);
+            if (existing) {
+                existing.quantity += cartProduct.quantity || 1;
+            } else {
+                seedCart.items.push({ ...cartProduct, quantity: cartProduct.quantity || 1 });
+            }
+            saveCart();
+            updateCartUI();
+        }
+
+        function removeCartItem(id) {
+            seedCart.items = seedCart.items.filter(item => item.id !== id);
+            saveCart();
+            updateCartUI();
+        }
+
+        function updateCartQuantity(id, delta) {
+            const item = seedCart.items.find(i => i.id === id);
+            if (!item) return;
+            item.quantity = Math.max(1, item.quantity + delta);
+            saveCart();
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const cartItemsContainer = document.getElementById('cart-items');
+            const cartTotalLabel = document.getElementById('cart-total');
+            const navCount = document.getElementById('cart-count') || document.getElementById('nav-cart-count');
+            const mobileCount = document.getElementById('mobile-cart-count');
+            if (!cartItemsContainer || !cartTotalLabel || !mobileCount) return;
+            cartItemsContainer.innerHTML = '';
+            let total = 0;
+            let mrpTotal = 0;
+            if (seedCart.items.length === 0) {
+                cartItemsContainer.innerHTML = '<p class="text-sm text-gray-500">Your cart is empty. Browse products and add items to your cart.</p>';
+            }
+            seedCart.items.forEach(item => {
+                const itemTotal = item.price ? item.price * item.quantity : 0;
+                total += itemTotal;
+                mrpTotal += (item.mrp || item.price || 0) * item.quantity;
+                const card = document.createElement('div');
+                card.className = 'flex items-center gap-4 rounded-2xl border border-gray-200 p-4';
+                card.innerHTML = `
+                    <img src="${item.image || 'https://placehold.co/120x120?text=No+image'}" alt="${item.name}" class="h-20 w-20 rounded-3xl object-cover">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-semibold text-gray-900 truncate">${item.name}</h3>
+                        <p class="text-sm font-semibold text-[#1e6835]">${item.weight || item.pack || 'Standard size'}</p>
+                        <p class="text-sm text-gray-500 truncate">${item.description || ''}</p>
+                        <div class="mt-3 flex items-center gap-2 text-sm text-gray-700">
+                            <button onclick="updateCartQuantity('${item.id}', -1)" class="rounded-full border border-gray-300 px-2 py-1 hover:bg-gray-100">-</button>
+                            <span class="font-semibold">${item.quantity}</span>
+                            <button onclick="updateCartQuantity('${item.id}', 1)" class="rounded-full border border-gray-300 px-2 py-1 hover:bg-gray-100">+</button>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-semibold text-gray-900">${item.price ? formatPrice(itemTotal) : '₹0'}</div>
+                        <div class="text-xs text-gray-400">MRP ${item.mrp ? formatPrice(item.mrp) : 'N/A'}</div>
+                        <button onclick="removeCartItem('${item.id}')" class="mt-2 text-xs text-red-600 hover:underline">Remove</button>
+                    </div>
+                `;
+                cartItemsContainer.appendChild(card);
+            });
+            document.getElementById('cart-mrp-total').innerText = formatPrice(mrpTotal);
+            document.getElementById('cart-savings').innerText = formatPrice(Math.max(0, mrpTotal - total));
+            cartTotalLabel.innerText = formatPrice(total);
+            if (navCount) navCount.innerText = getCartCount();
+            mobileCount.innerText = getCartCount();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCart();
+            updateCartUI();
+        });
+    </script>
+    <script>
+        function findShopButtonsAndWireModal() {
+            document.querySelectorAll('.seed-card a, .seed-card button').forEach(el => {
+                if (el.textContent.trim().toLowerCase() !== 'shop now') return;
+                const card = el.closest('.seed-card');
+                if (!card) return;
+                const product = getProductDataFromCard(card, el.getAttribute('href') || '');
+                const handleShowModal = event => {
+                    event.preventDefault();
+                    openProductModal(product);
+                };
+                el.addEventListener('click', handleShowModal);
+                if (!card.querySelector('.cart-add-btn')) {
+                    const addBtn = document.createElement('button');
+                    addBtn.type = 'button';
+                    addBtn.className = 'cart-add-btn mt-3 w-full bg-[#f59e0b] hover:bg-[#d97706] text-white text-sm font-bold py-2 px-4 rounded-full shadow-sm transition';
+                    addBtn.innerText = 'Add to Cart';
+                    addBtn.addEventListener('click', handleShowModal);
+                    el.insertAdjacentElement('afterend', addBtn);
+                }
+            });
+        }
+
+        function refreshCartCounts() {
+            const count = getCartCount();
+            const navCount = document.getElementById('nav-cart-count');
+            const mobileCount = document.getElementById('mobile-cart-count');
+            if (navCount) navCount.innerText = count;
+            if (mobileCount) mobileCount.innerText = count;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            findShopButtonsAndWireModal();
+            refreshCartCounts();
+        });
+    </script>
+    <script>
+        function processInstagramEmbeds() {
+            if (window.instgrm?.Embeds) window.instgrm.Embeds.process();
+        }
+    </script>
+    <script async src="https://www.instagram.com/embed.js" onload="processInstagramEmbeds()"></script>
 </body>
+    <div id="payment-return-status" class="hidden fixed top-20 left-1/2 -translate-x-1/2 z-[120] max-w-[calc(100%-2rem)] rounded-xl px-5 py-3 text-sm font-semibold shadow-lg"></div>
 </html>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const status = params.get('payment_status');
+            const orderId = params.get('order_id');
+            const banner = document.getElementById('payment-return-status');
+            if (!status || !banner) return;
+            const cartBackup = localStorage.getItem('seedghar_checkout_cart_backup');
+            if (status === 'PAID') {
+                localStorage.removeItem('seedghar_checkout_cart_backup');
+            } else if (cartBackup) {
+                try {
+                    const restoredCart = JSON.parse(cartBackup);
+                    if (Array.isArray(restoredCart)) {
+                        localStorage.setItem('seedghar_cart_data', JSON.stringify(restoredCart));
+                        seedCart.items = restoredCart;
+                        updateCartUI();
+                    }
+                } catch (error) {
+                    localStorage.removeItem('seedghar_checkout_cart_backup');
+                }
+            }
+            const messages = {
+                PAID: `Payment successful${orderId ? ` for order ${orderId}` : ''}.`,
+                CANCELLED: 'Payment was cancelled. Your order was not marked as paid.',
+                FAILED: 'Payment failed. Please try again.',
+                ACTIVE: 'Payment was not completed. Your order is still unpaid.',
+                verification_failed: 'We could not verify the payment yet. Please contact support before retrying.'
+            };
+            banner.innerText = messages[status] || `Payment status: ${status}.`;
+            banner.classList.remove('hidden');
+            banner.classList.add(status === 'PAID' ? 'bg-green-100' : 'bg-amber-100', status === 'PAID' ? 'text-green-800' : 'text-amber-800');
+            window.history.replaceState({}, document.title, window.location.pathname);
+            setTimeout(() => banner.classList.add('hidden'), 8000);
+        });
+    </script>
