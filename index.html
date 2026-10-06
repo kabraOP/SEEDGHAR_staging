@@ -1708,9 +1708,7 @@
             errorBox.classList.add('hidden');
 
             try {
-                const apiBaseUrl = window.location.protocol === 'file:' || ['localhost', '127.0.0.1'].includes(window.location.hostname)
-                    ? 'http://localhost:8787'
-                    : (window.SEEDGHAR_API_URL || 'https://h7ghhk8dea.execute-api.ap-south-1.amazonaws.com');
+                const apiBaseUrl = window.SEEDGHAR_API_URL || 'https://h7ghhk8dea.execute-api.ap-south-1.amazonaws.com';
                 const response = await fetch(`${apiBaseUrl}/api/orders`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1729,7 +1727,10 @@
                 closeCheckout();
                 openPaymentGateway(result);
             } catch (error) {
-                errorBox.innerText = `${error.message}. Please start the order service and try again.`;
+                const networkError = error instanceof TypeError;
+                errorBox.innerText = networkError
+                    ? 'Could not reach the order API. Check its URL, API Gateway deployment, and CORS settings, then try again.'
+                    : error.message;
                 errorBox.classList.remove('hidden');
             } finally {
                 submitButton.disabled = false;
